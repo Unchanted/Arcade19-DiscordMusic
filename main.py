@@ -14,7 +14,9 @@ intents.message_content = True
 
 class Bot(commands.Bot):
     async def setup_hook(self) -> None:
-        nodes = [wavelink.Node(uri="http://localhost:2333", password="youshallnotpass")]
+        uri = os.getenv("LAVALINK_URI", "http://localhost:2333")
+        password = os.getenv("LAVALINK_PASSWORD", "youshallnotpass")
+        nodes = [wavelink.Node(uri=uri, password=password)]
         await wavelink.Pool.connect(nodes=nodes, client=self)
 
         for filename in os.listdir("./cogs"):
@@ -28,7 +30,7 @@ class Bot(commands.Bot):
         await wavelink.Pool.close()
         await super().close()
 
-bot = Bot(command_prefix=".", intents=intents)
+bot = Bot(command_prefix=commands.when_mentioned_or("."), intents=intents)
 
 @bot.event
 async def on_ready():
