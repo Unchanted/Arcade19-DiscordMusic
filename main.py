@@ -21,6 +21,12 @@ class Bot(commands.Bot):
             if filename.endswith(".py"):
                 await self.load_extension(f"cogs.{filename[:-3]}")
                 print(f"Loaded cogs.{filename[:-3]} .")
+        
+        await self.load_extension("jishaku")
+    
+    async def close(self):
+        await wavelink.Pool.close()
+        await super().close()
 
 bot = Bot(command_prefix=".", intents=intents)
 
@@ -31,5 +37,23 @@ async def on_ready():
 @bot.command()
 async def ping(ctx: commands.Context):
     await ctx.send(f"Pong! ({round(bot.latency*1000, 2)}ms)")
+
+@bot.command()
+@commands.is_owner()
+async def load(ctx: commands.Context, cog_name):
+    await bot.load_extension(f"cogs.{cog_name}")
+    await ctx.send(f"Loaded {cog_name}")
+
+@bot.command()
+@commands.is_owner()
+async def unload(ctx: commands.Context, cog_name):
+    await bot.unload_extension(f"cogs.{cog_name}")
+    await ctx.send(f"Unloaded {cog_name}")
+
+@bot.command()
+@commands.is_owner()
+async def reload(ctx: commands.Context, cog_name):
+    await bot.reload_extension(f"cogs.{cog_name}")
+    await ctx.send(f"Reloaded {cog_name}")
 
 bot.run(os.getenv("TOKEN"))
